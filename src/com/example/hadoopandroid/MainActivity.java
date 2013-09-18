@@ -1,38 +1,54 @@
 package com.example.hadoopandroid;
 
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
+
+
+
 //import org.apache.hadoop.hdfs.server.datanode.SecureDataNodeStarter.SecureResources;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-
+import 	android.os.AsyncTask;
 
 public class MainActivity extends Activity {
-	/*    
-	void join(DataNode datanode) {
-		if (datanode.dataNodeThread != null) {
+	
+	class startProcess extends AsyncTask<Void, Void, Void> {
+		DataNode datanode;
+        String args[] = null;
+
+		protected Void doInBackground(Void... arg) {
 			try {
-				//getDataNodeThread() was added to Hadoop code or dataNodeThread was made public
-				datanode.dataNodeThread.join();
-				Log.v("Main", "Data Node Thread started");
-			} catch (InterruptedException e) {}
-		}
-		Log.v("Main", "Data Node Thread fail to start");
-	}*/
-	/*
-	void join(DataNode datanode) {
-		while (datanode.shouldRun) {
-			try {
-				datanode.blockPoolManager.joinAll();
-		        if (datanode.blockPoolManager.getAllNamenodeThreads() != null && datanode.blockPoolManager.getAllNamenodeThreads().length == 0) {
-		        	datanode.shouldRun = false;
-		        }
-		        Thread.sleep(2000);
-		      } catch (InterruptedException ex) {
-		      }
-	    }
-	}*/
+				datanode = DataNode.createDataNode(args, null);
+				if (datanode != null) {
+					//created own join function above because one in DataNode.java was unaccessible
+					System.out.println("DATANODE CREATED");
+					Log.i("MainActivity", "DATANODE CREATED");
+					//datanode.joinDataNode();
+				} else {
+					System.out.println("DATANODE FAILED");
+					Log.i("MainActivity", "DATANODE FAILED");				
+				}
+			} catch (Throwable e) {		
+				Log.e("Main", "Exception Raised in Android MainActivity  "+e.toString());
+			} finally {
+			}
+			return null;
+			
+	   
+	     }
+
+	     protected void onProgressUpdate() {
+	        
+	     }
+
+	     protected void onPostExecute() {
+	    	 datanode.joinDataNode();
+	     }
+
+	
+	}
+	
 	  
 	  
              
@@ -41,9 +57,12 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        new startProcess().execute();
+
+        /*
         String args[] = null;
-        //SecureResources resources = null;
-        
+       
+       
 		try {
 			DataNode datanode = DataNode.createDataNode(args, null);
 			if (datanode != null) {
@@ -51,26 +70,16 @@ public class MainActivity extends Activity {
 				System.out.println("DATANODE CREATED");
 				Log.i("MainActivity", "DATANODE CREATED");
 				datanode.joinDataNode();
-				//join(datanode);
 			} else {
 				System.out.println("DATANODE FAILED");
 				Log.i("MainActivity", "DATANODE FAILED");				
 			}
 		} catch (Throwable e) {		
-			Log.e("Main", e.toString());
+			Log.e("Main", "Exception Raised in Android MainActivity  "+e.toString());
 		} finally {
-		}
+		}*/
         
-        /*try {
-            DataNode datanode = DataNode.createDataNode(args, null, resources);
-            if (datanode != null)
-            	datanode.join();
-          } catch (Throwable e) {
-          } finally {
-          }*/
-        
-        
-        //DataNode.secureMain(args, resources);
+
         
     }
     	
